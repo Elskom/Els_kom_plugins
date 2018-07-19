@@ -144,5 +144,13 @@ namespace komv2_plugin
                 // do conversions here.
             }
         }
+
+        public void UpdateCRC(string crcpath, string checkpath)
+        {
+            // backup original crc.xml.
+            // modify crc.xml object.
+            // save xml object.
+            // manually compare the 2 files later when debugging.
+        }
     }
 }
