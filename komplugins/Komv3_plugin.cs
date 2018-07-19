@@ -56,10 +56,6 @@ namespace komv3_plugin
             {
                 // do conversions here.
             }
-            else if (crcversion == 3)
-            {  
-                // do conversions here.
-            }
             else if (crcversion == 4)
             {
                 // do conversions here.

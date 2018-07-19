@@ -70,10 +70,6 @@ namespace komv4_plugin
             {  
                 // do conversions here.
             }
-            else if (crcversion == 4)
-            {
-                // do conversions here.
-            }
         }
     }
 }

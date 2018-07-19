@@ -135,12 +135,8 @@ namespace komv2_plugin
 
         public void ConvertCRC(int crcversion, string crcpath)
         {
-            if (crcversion == 2)
+            if (crcversion == 3)
             {
-                // do conversions here.
-            }
-            else if (crcversion == 3)
-            {  
                 // do conversions here.
             }
             else if (crcversion == 4)
