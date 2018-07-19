@@ -132,5 +132,21 @@ namespace komv2_plugin
                 fi.Delete();
             }
         }
+
+        public void ConvertCRC(int crcversion, string crcpath)
+        {
+            if (crcversion == 2)
+            {
+                // do conversions here.
+            }
+            else if (crcversion == 3)
+            {  
+                // do conversions here.
+            }
+            else if (crcversion == 4)
+            {
+                // do conversions here.
+            }
+        }
     }
 }
