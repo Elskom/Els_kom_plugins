@@ -110,38 +110,43 @@ namespace komv4_plugin
 #elif KOMV4
         private static System.Collections.Generic.Dictionary<int, int> KeyMap { get; set; } = new System.Collections.Generic.Dictionary<int, int>();
 
-        private static void LoadKeyMap()
+        private static void LoadKeyMap(int value)
         {
-            try
-            {
-                System.IO.FileStream KeyMapfs = System.IO.File.OpenRead(System.Windows.Forms.Application.StartupPath + "\\plugins\\komKeyMap.dms");
-                System.IO.BinaryReader KeyMapreader = new System.IO.BinaryReader(KeyMapfs, System.Text.Encoding.ASCII);
-                // TODO: Read KeyMap data properly.
-                for (long i = 0; i < KeyMapreader.BaseStream.Length;)
-                {
-                    int key = KeyMapreader.ReadInt32();
-                    int value = KeyMapreader.ReadInt32();
-                    try
-                    {
-                        KeyMap.Add(key, value);
-                    }
-                    catch (System.ArgumentException)
-                    {
-                    }
-                    i = KeyMapreader.BaseStream.Position;
-                }
-                KeyMapreader.Dispose();
-            }
-            catch (System.IO.FileNotFoundException)
-            {
+            //try
+            //{
+            //    System.IO.FileStream KeyMapfs = System.IO.File.OpenRead(System.Windows.Forms.Application.StartupPath + "\\plugins\\komKeyMap.dms");
+            //    System.IO.BinaryReader KeyMapreader = new System.IO.BinaryReader(KeyMapfs, System.Text.Encoding.ASCII);
+            //    for (long i = 0; i < KeyMapreader.BaseStream.Length;)
+            //    {
+            //        int key = KeyMapreader.ReadInt32();
+            //        int value = KeyMapreader.ReadInt32();
+            //        try
+            //        {
+            //            KeyMap.Add(key, value);
+            //        }
+            //        catch (System.ArgumentException)
+            //        {
+            //        }
+            //        i = KeyMapreader.BaseStream.Position;
+            //    }
+            //    KeyMapreader.Dispose();
+            //}
+            //catch (System.IO.FileNotFoundException)
+            //{
                 // keymap file not found.
+            //}
+            int key = 0;
+            if (KeyMap.Count == 0)
+            {
+                KeyMap.Clear();
             }
+            KeyMap.Add(key, value);
         }
 
-        internal static void DecryptCRCXml(this Els_kom_Core.Classes.KOMStream kOMStream, int key, ref byte[] data, int length, System.Text.Encoding encoding)
+        internal static void DecryptCRCXml(this Els_kom_Core.Classes.KOMStream kOMStream, int enckey, ref byte[] data, int length, System.Text.Encoding encoding)
         {
-            // Load the KOM V4 keymap file.
-            LoadKeyMap();
+            int key = 0;
+            LoadKeyMap(enckey);
             if (!KeyMap.ContainsKey(key))
                 return;
 
@@ -153,7 +158,7 @@ namespace komv4_plugin
             blowfish.Dispose();
         }
 
-        internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v4(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata, int entry_count)
+        internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v4(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata)
         {
             System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
             var xml = System.Xml.Linq.XElement.Parse(xmldata);

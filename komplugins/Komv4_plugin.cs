@@ -28,16 +28,18 @@ namespace komv4_plugin
         public void Unpack(string in_path, string out_path, string KOMFileName)
         {
             System.IO.BinaryReader reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
-            reader.BaseStream.Position += 52;
-            int entry_count = (int)reader.ReadUInt64();
+            // apperently this should seek into offset 50 when in a hex editor.
+            reader.BaseStream.Position += 57;
+            // 4 bytes
+            //int entry_count = (int)reader.ReadInt32();
             // trying to understand this crap... This is where it starts to fail
             // for KOM V4 on Elsword's current data036.kom.
-            int compressed = reader.ReadInt32();
+            int enc_key = reader.ReadInt32();
             int file_time = reader.ReadInt32();
             int xml_size = reader.ReadInt32();
             byte[] xmldatabuffer = reader.ReadBytes(xml_size);
             Els_kom_Core.Classes.KOMStream kOMStream = new Els_kom_Core.Classes.KOMStream();
-            kOMStream.DecryptCRCXml(compressed, ref xmldatabuffer, xml_size, System.Text.Encoding.ASCII);
+            kOMStream.DecryptCRCXml(enc_key, ref xmldatabuffer, xml_size, System.Text.Encoding.ASCII);
             string xmldata = System.Text.Encoding.ASCII.GetString(xmldatabuffer);
             try
             {
