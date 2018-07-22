@@ -43,7 +43,7 @@ namespace komv4_plugin
             string xmldata = System.Text.Encoding.ASCII.GetString(xmldatabuffer);
             try
             {
-                System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = kOMStream.Make_entries_v4(xmldata, entry_count);
+                System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = kOMStream.Make_entries_v4(xmldata);
                 foreach (var entry in entries)
                 {
                     // we iterate through every entry here and unpack the data.
