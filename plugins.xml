@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Plugins>
+    <Plugin Name="komv2_plugin" Version="[plugin version here]" DownloadUrl="[plugin repository releases url here]">
+        <DownloadFile Name="komv2.plugin.dll" />
+        <DownloadFile Name="komv2.plugin.pdb" />
+    </Plugin>
+    <Plugin Name="komv3_plugin" Version="[plugin version here]" DownloadUrl="[plugin repository releases url here]">
+        <DownloadFile Name="komv3.plugin.dll" />
+        <DownloadFile Name="komv3.plugin.pdb" />
+    </Plugin>
+    <Plugin Name="komv4_plugin" Version="[plugin version here]" DownloadUrl="[plugin repository releases url here]">
+        <DownloadFile Name="komv4.plugin.dll" />
+        <DownloadFile Name="komv4.plugin.pdb" />
+    </Plugin>
+    <Plugin Name="callbacktest_plugin" Version="[plugin version here]" DownloadUrl="[plugin repository releases url here]">
+        <DownloadFile Name="callbacktest.plugin.dll" />
+        <DownloadFile Name="callbacktest.plugin.pdb" />
+    </Plugin>
+</Plugins>
