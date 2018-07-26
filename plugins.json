@@ -1,0 +1,36 @@
+{
+    "plugins": {
+        "komv2_plugin": {
+            "version": "[plugin version here]",
+            "url": "[plugin release url here",
+            "files": [
+                "komv2.plugin.dll",
+                "komv2.plugin.pdb"
+            ]
+        },
+        "komv3_plugin": {
+            "version": "[plugin version here]",
+            "url": "[plugin release url here",
+            "files": [
+                "komv3.plugin.dll",
+                "komv3.plugin.pdb"
+            ]
+        },
+        "komv4_plugin": {
+            "version": "[plugin version here]",
+            "url": "[plugin release url here",
+            "files": [
+                "komv4.plugin.dll",
+                "komv4.plugin.pdb"
+            ]
+        },
+        "callbacktest_plugin": {
+            "version": "[plugin version here]",
+            "url": "[plugin release url here",
+            "files": [
+                "callbacktest.plugin.dll",
+                "callbacktest.plugin.pdb"
+            ]
+        }
+    }
+}
