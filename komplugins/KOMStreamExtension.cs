@@ -136,7 +136,7 @@ namespace komv4_plugin
                 // keymap file not found.
             //}
             int key = 0;
-            if (KeyMap.Count == 0)
+            if (KeyMap.Count != 0)
             {
                 KeyMap.Clear();
             }
