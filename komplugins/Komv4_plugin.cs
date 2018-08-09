@@ -47,7 +47,7 @@ namespace komv4_plugin
                 foreach (var entry in entries)
                 {
                     // we iterate through every entry here and unpack the data.
-                    kOMStream.WriteOutput(reader, out_path, entry, SupportedKOMVersion, xmldata);
+                    kOMStream.WriteOutput(reader, out_path, entry, SupportedKOMVersion, xmldata, in_path);
                 }
             }
             catch (System.Xml.XmlException)
