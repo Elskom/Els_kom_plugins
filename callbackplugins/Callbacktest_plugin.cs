@@ -9,6 +9,7 @@ namespace callbacktest_plugin
     {
         public string PluginName => "Callback Test Plugin";
         public bool SupportsSettings => true;
+        public bool ShowModal => true;
         public System.Windows.Forms.Form SettingsWindow => new CallbacktestForm();
 
         public void TestModsCallback()
