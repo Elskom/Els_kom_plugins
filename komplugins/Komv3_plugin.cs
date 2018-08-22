@@ -9,7 +9,7 @@
 
 namespace komv3_plugin
 {
-    public class Komv3_plugin : Els_kom_Core.interfaces.IKomPlugin
+    public class Komv3_plugin : Els_kom_Core.Interfaces.IKomPlugin
     {
         public string PluginName => "KOM V3 Plugin";
         public string KOMHeaderString => "KOG GC TEAM MASSFILE V.0.3.";
@@ -17,7 +17,7 @@ namespace komv3_plugin
 
         public void Pack(string in_path, string out_path, string KOMFileName)
         {
-            Els_kom_Core.Classes.KOMStream kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var kOMStream = new Els_kom_Core.Classes.KOMStream();
             // convert the crc.xml file to the version for this plugin, if needed.
             kOMStream.ConvertCRC(3, in_path + System.IO.Path.DirectorySeparatorChar + "crc.xml");
             kOMStream.Dispose();
@@ -27,16 +27,16 @@ namespace komv3_plugin
 
         public void Unpack(string in_path, string out_path, string KOMFileName)
         {
-            System.IO.BinaryReader reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
+            var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
             reader.BaseStream.Position += 52;
-            int entry_count = (int)reader.ReadUInt64();
+            var entry_count = (int)reader.ReadUInt64();
             reader.BaseStream.Position += 4;
-            int file_time = reader.ReadInt32();
-            int xml_size = reader.ReadInt32();
-            byte[] xmldatabuffer = reader.ReadBytes(xml_size);
-            string xmldata = System.Text.Encoding.ASCII.GetString(xmldatabuffer);
-            Els_kom_Core.Classes.KOMStream kOMStream = new Els_kom_Core.Classes.KOMStream();
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = kOMStream.Make_entries_v3(xmldata, entry_count);
+            var file_time = reader.ReadInt32();
+            var xml_size = reader.ReadInt32();
+            var xmldatabuffer = reader.ReadBytes(xml_size);
+            var xmldata = System.Text.Encoding.ASCII.GetString(xmldatabuffer);
+            var kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var entries = kOMStream.Make_entries_v3(xmldata, entry_count);
             foreach (var entry in entries)
             {
                 // we iterate through every entry here and unpack the data.

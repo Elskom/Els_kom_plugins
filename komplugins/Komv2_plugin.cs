@@ -9,7 +9,7 @@
 
 namespace komv2_plugin
 {
-    public class Komv2_plugin : Els_kom_Core.interfaces.IKomPlugin
+    public class Komv2_plugin : Els_kom_Core.Interfaces.IKomPlugin
     {
         public string PluginName => "KOM V2 Plugin";
         public string KOMHeaderString => "KOG GC TEAM MASSFILE V.0.2.";
@@ -17,31 +17,31 @@ namespace komv2_plugin
 
         public void Pack(string in_path, string out_path, string KOMFileName)
         {
-            bool use_XoR = false;
+            var use_XoR = false;
             if (System.IO.File.Exists(in_path + "\\XoRNeeded.dummy"))
             {
                 use_XoR = true;
                 System.IO.File.Delete(in_path + "\\XoRNeeded.dummy");
             }
-            System.IO.BinaryWriter writer = new System.IO.BinaryWriter(System.IO.File.Create(out_path), System.Text.Encoding.ASCII);
-            int entry_count = 0;
-            int crc_size = 0;
-            Els_kom_Core.Classes.KOMStream kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var writer = new System.IO.BinaryWriter(System.IO.File.Create(out_path), System.Text.Encoding.ASCII);
+            var entry_count = 0;
+            var crc_size = 0;
+            var kOMStream = new Els_kom_Core.Classes.KOMStream();
             // convert the crc.xml file to the version for this plugin, if needed.
             kOMStream.ConvertCRC(2, in_path + System.IO.Path.DirectorySeparatorChar + "crc.xml");
-            kOMStream.ReadCrc(in_path + "\\crc.xml", out byte[] crc_data, ref entry_count, ref crc_size);
+            kOMStream.ReadCrc(in_path + "\\crc.xml", out var crc_data, ref entry_count, ref crc_size);
             kOMStream.Dispose();
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(in_path);
-            int offset = 0;
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            var di = new System.IO.DirectoryInfo(in_path);
+            var offset = 0;
+            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
             foreach (var fi in di.GetFiles())
             {
                 entry_count++;
-                byte[] file_data = System.IO.File.ReadAllBytes(in_path + "\\" + fi.Name);
-                int originalsize = file_data.Length;
+                var file_data = System.IO.File.ReadAllBytes(in_path + "\\" + fi.Name);
+                var originalsize = file_data.Length;
                 if (use_XoR)
                 {
-                    byte[] xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
+                    var xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
                     Els_kom_Core.Classes.BlowFish.XorBlock(ref file_data, xorkey);
                 }
                 byte[] compressedData;
@@ -49,17 +49,17 @@ namespace komv2_plugin
                 {
                     Els_kom_Core.Classes.ZlibHelper.CompressData(file_data, out compressedData);
                 }
-                catch (Els_kom_Core.Classes.Zlib.ZStreamException)
+                catch (Els_kom_Core.Classes.PackingError ex)
                 {
-                    throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of entries.");
+                    throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of entries.", ex);
                 }
-                int compressedSize = compressedData.Length;
+                var compressedSize = compressedData.Length;
                 offset += compressedSize;
                 entries.Add(new Els_kom_Core.Classes.EntryVer(compressedData, fi.Name, originalsize, compressedSize, offset));
             }
             if (use_XoR)
             {
-                byte[] xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
+                var xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
                 Els_kom_Core.Classes.BlowFish.XorBlock(ref crc_data, xorkey);
             }
             byte[] compressedcrcData;
@@ -67,11 +67,11 @@ namespace komv2_plugin
             {
                 Els_kom_Core.Classes.ZlibHelper.CompressData(crc_data, out compressedcrcData);
             }
-            catch (Els_kom_Core.Classes.Zlib.ZStreamException)
+            catch (Els_kom_Core.Classes.PackingError ex)
             {
-                throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of crc.xml.");
+                throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of crc.xml.", ex);
             }
-            int compressedcrc = compressedcrcData.Length;
+            var compressedcrc = compressedcrcData.Length;
             offset += compressedcrc;
             entries.Add(new Els_kom_Core.Classes.EntryVer(compressedcrcData, "crc.xml", crc_size, compressedcrc, offset));
             writer.Write(KOMHeaderString.ToCharArray(), 0, KOMHeaderString.Length);
@@ -80,30 +80,30 @@ namespace komv2_plugin
             writer.Write(1);
             foreach (var entry in entries)
             {
-                writer.Write(entry.name.ToCharArray(), 0, entry.name.Length);
-                int seek_amount = 60 - entry.name.Length;
+                writer.Write(entry.Name.ToCharArray(), 0, entry.Name.Length);
+                var seek_amount = 60 - entry.Name.Length;
                 writer.BaseStream.Position += seek_amount;
-                writer.Write(entry.uncompressed_size);
-                writer.Write(entry.compressed_size);
-                writer.Write(entry.relative_offset);
+                writer.Write(entry.Uncompressed_size);
+                writer.Write(entry.Compressed_size);
+                writer.Write(entry.Relative_offset);
             }
             foreach (var entry in entries)
             {
-                writer.Write(entry.entrydata, 0, entry.compressed_size);
+                writer.Write(entry.Entrydata, 0, entry.Compressed_size);
             }
             writer.Dispose();
         }
 
         public void Unpack(string in_path, string out_path, string KOMFileName)
         {
-            System.IO.BinaryReader reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
+            var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
             reader.BaseStream.Position = 52;
-            Els_kom_Core.Classes.KOMStream kOMStream = new Els_kom_Core.Classes.KOMStream();
-            kOMStream.ReadInFile(reader, out int entry_count);
+            var kOMStream = new Els_kom_Core.Classes.KOMStream();
+            kOMStream.ReadInFile(reader, out var entry_count);
             // without this dummy read the entry instances would not get the correct
             // data leading to an crash when tring to make an file with the entry name in the output path.
-            kOMStream.ReadInFile(reader, out int size);
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = kOMStream.Make_entries_v2(entry_count, reader);
+            kOMStream.ReadInFile(reader, out var size);
+            var entries = kOMStream.Make_entries_v2(entry_count, reader);
             foreach (var entry in entries)
             {
                 // we iterate through every entry here and unpack the data.
@@ -118,7 +118,7 @@ namespace komv2_plugin
             if (folder)
             {
                 // delete kom folder data.
-                System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(in_path);
+                var di = new System.IO.DirectoryInfo(in_path);
                 foreach (var fi in di.GetFiles())
                 {
                     fi.Delete();
@@ -128,7 +128,7 @@ namespace komv2_plugin
             else
             {
                 // delete kom file.
-                System.IO.FileInfo fi = new System.IO.FileInfo(in_path);
+                var fi = new System.IO.FileInfo(in_path);
                 fi.Delete();
             }
         }

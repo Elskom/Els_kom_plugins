@@ -5,7 +5,7 @@
 
 namespace callbacktest_plugin
 {
-    public class Callbacktest_plugin : Els_kom_Core.interfaces.ICallbackPlugin
+    public class Callbacktest_plugin : Els_kom_Core.Interfaces.ICallbackPlugin
     {
         public string PluginName => "Callback Test Plugin";
         public bool SupportsSettings => true;
@@ -15,7 +15,7 @@ namespace callbacktest_plugin
         public void TestModsCallback()
         {
             Els_kom_Core.Classes.SettingsFile.Settingsxml.ReopenFile();
-            int.TryParse(Els_kom_Core.Classes.SettingsFile.Settingsxml.Read("ShowTestMessages"), out int callbacksetting1);
+            int.TryParse(Els_kom_Core.Classes.SettingsFile.Settingsxml.Read("ShowTestMessages"), out var callbacksetting1);
             if (callbacksetting1 > 0)
             {
                 System.Windows.Forms.MessageBox.Show("Testing this callback interface.", "Info!", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);

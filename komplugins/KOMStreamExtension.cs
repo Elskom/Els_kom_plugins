@@ -24,13 +24,13 @@ namespace komv4_plugin
 
         internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v2(this Els_kom_Core.Classes.KOMStream kOMStream, int entrycount, System.IO.BinaryReader reader)
         {
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
-            for (int i = 0; i < entrycount; i++)
+            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            for (var i = 0; i < entrycount; i++)
             {
-                kOMStream.ReadInFile(reader, out string key, 60, System.Text.Encoding.ASCII);
-                kOMStream.ReadInFile(reader, out int originalsize);
-                kOMStream.ReadInFile(reader, out int compressedSize);
-                kOMStream.ReadInFile(reader, out int offset);
+                kOMStream.ReadInFile(reader, out var key, 60, System.Text.Encoding.ASCII);
+                kOMStream.ReadInFile(reader, out var originalsize);
+                kOMStream.ReadInFile(reader, out var compressedSize);
+                kOMStream.ReadInFile(reader, out var offset);
                 var entry = new Els_kom_Core.Classes.EntryVer(kOMStream.GetSafeString(key), originalsize, compressedSize, offset);
                 entries.Add(entry);
             }
@@ -56,8 +56,8 @@ namespace komv4_plugin
             {
                 throw new System.ArgumentNullException(nameof(encoding));
             }
-            long position = binaryReader.BaseStream.Position;
-            byte[] readBytes = binaryReader.ReadBytes(length);
+            var position = binaryReader.BaseStream.Position;
+            var readBytes = binaryReader.ReadBytes(length);
             if ((binaryReader.BaseStream.Position - position) == length)
             {
                 destString = encoding.GetString(readBytes);
@@ -73,8 +73,8 @@ namespace komv4_plugin
             {
                 throw new System.ArgumentNullException(nameof(binaryReader));
             }
-            long position = binaryReader.BaseStream.Position;
-            int readInt = binaryReader.ReadInt32();
+            var position = binaryReader.BaseStream.Position;
+            var readInt = binaryReader.ReadInt32();
             if ((binaryReader.BaseStream.Position - position) == sizeof(int))
             {
                 destInt = readInt;
@@ -86,7 +86,7 @@ namespace komv4_plugin
 #elif KOMV3
         internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v3(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata, int entry_count)
         {
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
             var xml = System.Xml.Linq.XElement.Parse(xmldata);
             foreach (var fileElement in xml.Elements("File"))
             {
@@ -135,7 +135,7 @@ namespace komv4_plugin
             //{
                 // keymap file not found.
             //}
-            int key = 0;
+            var key = 0;
             if (KeyMap.Count != 0)
             {
                 KeyMap.Clear();
@@ -145,22 +145,22 @@ namespace komv4_plugin
 
         internal static void DecryptCRCXml(this Els_kom_Core.Classes.KOMStream kOMStream, int enckey, ref byte[] data, int length, System.Text.Encoding encoding)
         {
-            int key = 0;
+            var key = 0;
             LoadKeyMap(enckey);
             if (!KeyMap.ContainsKey(key))
                 return;
 
-            string keyStr = KeyMap[key].ToString();
-            string sha1Key = System.BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(encoding.GetBytes(keyStr))).Replace("-", "");
+            var keyStr = KeyMap[key].ToString();
+            var sha1Key = System.BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(encoding.GetBytes(keyStr))).Replace("-", "");
 
-            Els_kom_Core.Classes.BlowFish blowfish = new Els_kom_Core.Classes.BlowFish(sha1Key);
+            var blowfish = new Els_kom_Core.Classes.BlowFish(sha1Key);
             data = blowfish.Decrypt(data, System.Security.Cryptography.CipherMode.ECB);
             blowfish.Dispose();
         }
 
         internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v4(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata)
         {
-            System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
             var xml = System.Xml.Linq.XElement.Parse(xmldata);
             foreach (var fileElement in xml.Elements("File"))
             {
