@@ -31,9 +31,9 @@ namespace callbacktest_plugin
             this.CheckBox1 = new System.Windows.Forms.CheckBox();
             this.Label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            //
-            // checkBox1
-            //
+            // 
+            // CheckBox1
+            // 
             this.CheckBox1.AutoSize = true;
             this.CheckBox1.Location = new System.Drawing.Point(6, 6);
             this.CheckBox1.Name = "CheckBox1";
@@ -41,24 +41,24 @@ namespace callbacktest_plugin
             this.CheckBox1.TabIndex = 0;
             this.CheckBox1.UseVisualStyleBackColor = true;
             this.CheckBox1.CheckedChanged += new System.EventHandler(this.CheckBox1_CheckedChanged);
-            //
-            // label1
-            //
+            // 
+            // Label1
+            // 
             this.Label1.Location = new System.Drawing.Point(23, 6);
             this.Label1.Name = "Label1";
             this.Label1.Size = new System.Drawing.Size(118, 14);
             this.Label1.TabIndex = 1;
             this.Label1.Text = "Display Test Messages";
-            //
+            this.Label1.Click += new System.EventHandler(this.Label1_Click);
+            // 
             // CallbacktestForm
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(225, 27);
             this.Controls.Add(this.Label1);
             this.Controls.Add(this.CheckBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = Els_kom_Core.Classes.Icons.FormIcon;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CallbacktestForm";

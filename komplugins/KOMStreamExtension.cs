@@ -11,50 +11,61 @@ namespace komv3_plugin
 namespace komv4_plugin
 #endif
 {
+    using System;
+#if KOMV2
+    using System.IO;
+#endif
+#if !KOMV3
+    using System.Text;
+#endif
+    using System.Collections.Generic;
+#if !KOMV2
+    using System.Globalization;
+    using System.Xml.Linq;
+#if KOMV4
+    using System.Security.Cryptography;
+#endif
+#endif
+    using Els_kom_Core.Classes;
+
     internal static class KOMStreamExtension
     {
 #if KOMV2
-        internal static void ReadCrc(this Els_kom_Core.Classes.KOMStream kOMStream, string crcfile, out byte[] crcdata, ref int entry_count, ref int crc_size)
+        internal static void ReadCrc(this KOMStream kOMStream, string crcfile, out byte[] crcdata, ref int entry_count, ref int crc_size)
         {
-            crcdata = System.IO.File.ReadAllBytes(crcfile);
-            System.IO.File.Delete(crcfile);
+            crcdata = File.ReadAllBytes(crcfile);
+            File.Delete(crcfile);
             entry_count++;
             crc_size = crcdata.Length;
         }
 
-        internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v2(this Els_kom_Core.Classes.KOMStream kOMStream, int entrycount, System.IO.BinaryReader reader)
+        internal static List<EntryVer> Make_entries_v2(this KOMStream kOMStream, int entrycount, BinaryReader reader)
         {
-            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            var entries = new List<EntryVer>();
             for (var i = 0; i < entrycount; i++)
             {
                 kOMStream.ReadInFile(reader, out var key, 60, System.Text.Encoding.ASCII);
                 kOMStream.ReadInFile(reader, out var originalsize);
                 kOMStream.ReadInFile(reader, out var compressedSize);
                 kOMStream.ReadInFile(reader, out var offset);
-                var entry = new Els_kom_Core.Classes.EntryVer(kOMStream.GetSafeString(key), originalsize, compressedSize, offset);
+                var entry = new EntryVer(kOMStream.GetSafeString(key), originalsize, compressedSize, offset);
                 entries.Add(entry);
             }
             return entries;
         }
 
-        internal static string GetSafeString(this Els_kom_Core.Classes.KOMStream kOMStream, string source)
-        {
-            if (source.Contains(new string(char.MinValue, 1)))
-            {
-                return source.Substring(0, source.IndexOf(char.MinValue));
-            }
-            return source;
-        }
+        internal static string GetSafeString(this KOMStream kOMStream, string source)
+            => source.Contains(new string(char.MinValue, 1)) ? source.Substring(0, source.IndexOf(char.MinValue)) : source;
 
-        internal static bool ReadInFile(this Els_kom_Core.Classes.KOMStream kOMStream, System.IO.BinaryReader binaryReader, out string destString, int length, System.Text.Encoding encoding)
+        internal static bool ReadInFile(this KOMStream kOMStream, BinaryReader binaryReader, out string destString, int length, Encoding encoding)
         {
             if (binaryReader == null)
             {
-                throw new System.ArgumentNullException(nameof(binaryReader));
+                throw new ArgumentNullException(nameof(binaryReader));
             }
             if (encoding == null)
             {
-                throw new System.ArgumentNullException(nameof(encoding));
+                throw new ArgumentNullException(nameof(encoding));
             }
             var position = binaryReader.BaseStream.Position;
             var readBytes = binaryReader.ReadBytes(length);
@@ -67,11 +78,11 @@ namespace komv4_plugin
             return false;
         }
 
-        internal static bool ReadInFile(this Els_kom_Core.Classes.KOMStream kOMStream, System.IO.BinaryReader binaryReader, out int destInt)
+        internal static bool ReadInFile(this KOMStream kOMStream, BinaryReader binaryReader, out int destInt)
         {
             if (binaryReader == null)
             {
-                throw new System.ArgumentNullException(nameof(binaryReader));
+                throw new ArgumentNullException(nameof(binaryReader));
             }
             var position = binaryReader.BaseStream.Position;
             var readInt = binaryReader.ReadInt32();
@@ -84,31 +95,31 @@ namespace komv4_plugin
             return false;
         }
 #elif KOMV3
-        internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v3(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata, int entry_count)
+        internal static List<EntryVer> Make_entries_v3(this KOMStream kOMStream, string xmldata, int entry_count)
         {
-            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
-            var xml = System.Xml.Linq.XElement.Parse(xmldata);
+            var entries = new List<EntryVer>();
+            var xml = XElement.Parse(xmldata);
             foreach (var fileElement in xml.Elements("File"))
             {
                 var nameAttribute = fileElement.Attribute("Name");
                 var name = nameAttribute?.Value ?? "no value";
                 var sizeAttribute = fileElement.Attribute("Size");
-                var size = sizeAttribute == null ? -1 : System.Convert.ToInt32(sizeAttribute.Value);
+                var size = sizeAttribute == null ? -1 : Convert.ToInt32(sizeAttribute.Value);
                 var CompressedSizeAttribute = fileElement.Attribute("CompressedSize");
-                var CompressedSize = CompressedSizeAttribute == null ? -1 : System.Convert.ToInt32(CompressedSizeAttribute.Value);
+                var CompressedSize = CompressedSizeAttribute == null ? -1 : Convert.ToInt32(CompressedSizeAttribute.Value);
                 var ChecksumAttribute = fileElement.Attribute("Checksum");
-                var Checksum = ChecksumAttribute == null ? -1 : int.Parse(ChecksumAttribute.Value, System.Globalization.NumberStyles.HexNumber);
+                var Checksum = ChecksumAttribute == null ? -1 : int.Parse(ChecksumAttribute.Value, NumberStyles.HexNumber);
                 var FileTimeAttribute = fileElement.Attribute("FileTime");
-                var FileTime = FileTimeAttribute == null ? -1 : int.Parse(FileTimeAttribute.Value, System.Globalization.NumberStyles.HexNumber);
+                var FileTime = FileTimeAttribute == null ? -1 : int.Parse(FileTimeAttribute.Value, NumberStyles.HexNumber);
                 var AlgorithmAttribute = fileElement.Attribute("Algorithm");
-                var Algorithm = AlgorithmAttribute == null ? -1 : System.Convert.ToInt32(AlgorithmAttribute.Value);
-                var entry = new Els_kom_Core.Classes.EntryVer(name, size, CompressedSize, Checksum, FileTime, Algorithm);
+                var Algorithm = AlgorithmAttribute == null ? -1 : Convert.ToInt32(AlgorithmAttribute.Value);
+                var entry = new EntryVer(name, size, CompressedSize, Checksum, FileTime, Algorithm);
                 entries.Add(entry);
             }
             return entries;
         }
 #elif KOMV4
-        private static System.Collections.Generic.Dictionary<int, int> KeyMap { get; set; } = new System.Collections.Generic.Dictionary<int, int>();
+        private static Dictionary<int, int> KeyMap { get; set; } = new Dictionary<int, int>();
 
         private static void LoadKeyMap(int value)
         {
@@ -143,39 +154,41 @@ namespace komv4_plugin
             KeyMap.Add(key, value);
         }
 
-        internal static void DecryptCRCXml(this Els_kom_Core.Classes.KOMStream kOMStream, int enckey, ref byte[] data, int length, System.Text.Encoding encoding)
+        internal static void DecryptCRCXml(this KOMStream kOMStream, int enckey, ref byte[] data, int length, Encoding encoding)
         {
             var key = 0;
             LoadKeyMap(enckey);
             if (!KeyMap.ContainsKey(key))
+            {
                 return;
+            }
 
             var keyStr = KeyMap[key].ToString();
-            var sha1Key = System.BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(encoding.GetBytes(keyStr))).Replace("-", "");
+            var sha1Key = BitConverter.ToString(new SHA1CryptoServiceProvider().ComputeHash(encoding.GetBytes(keyStr))).Replace("-", "");
 
-            var blowfish = new Els_kom_Core.Classes.BlowFish(sha1Key);
-            data = blowfish.Decrypt(data, System.Security.Cryptography.CipherMode.ECB);
+            var blowfish = new BlowFish(sha1Key);
+            data = blowfish.Decrypt(data, CipherMode.ECB);
             blowfish.Dispose();
         }
 
-        internal static System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer> Make_entries_v4(this Els_kom_Core.Classes.KOMStream kOMStream, string xmldata)
+        internal static List<EntryVer> Make_entries_v4(this KOMStream kOMStream, string xmldata)
         {
-            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
-            var xml = System.Xml.Linq.XElement.Parse(xmldata);
+            var entries = new List<EntryVer>();
+            var xml = XElement.Parse(xmldata);
             foreach (var fileElement in xml.Elements("File"))
             {
                 var nameAttribute = fileElement.Attribute("Name");
                 var name = nameAttribute?.Value ?? "no value";
                 var sizeAttribute = fileElement.Attribute("Size");
-                var size = sizeAttribute == null ? -1 : System.Convert.ToInt32(sizeAttribute.Value);
+                var size = sizeAttribute == null ? -1 : Convert.ToInt32(sizeAttribute.Value);
                 var CompressedSizeAttribute = fileElement.Attribute("CompressedSize");
-                var CompressedSize = CompressedSizeAttribute == null ? -1 : System.Convert.ToInt32(CompressedSizeAttribute.Value);
+                var CompressedSize = CompressedSizeAttribute == null ? -1 : Convert.ToInt32(CompressedSizeAttribute.Value);
                 var ChecksumAttribute = fileElement.Attribute("Checksum");
-                var Checksum = ChecksumAttribute == null ? -1 : int.Parse(ChecksumAttribute.Value, System.Globalization.NumberStyles.HexNumber);
+                var Checksum = ChecksumAttribute == null ? -1 : int.Parse(ChecksumAttribute.Value, NumberStyles.HexNumber);
                 var FileTimeAttribute = fileElement.Attribute("FileTime");
-                var FileTime = FileTimeAttribute == null ? -1 : int.Parse(FileTimeAttribute.Value, System.Globalization.NumberStyles.HexNumber);
+                var FileTime = FileTimeAttribute == null ? -1 : int.Parse(FileTimeAttribute.Value, NumberStyles.HexNumber);
                 var AlgorithmAttribute = fileElement.Attribute("Algorithm");
-                var Algorithm = AlgorithmAttribute == null ? -1 : System.Convert.ToInt32(AlgorithmAttribute.Value);
+                var Algorithm = AlgorithmAttribute == null ? -1 : Convert.ToInt32(AlgorithmAttribute.Value);
                 // on v4 at least on Elsword there is now an MappedID attribute.
                 // this is even more of an reason to store some cache
                 // file for not only kom v3 for the algorithm 2 & 3
@@ -184,7 +197,7 @@ namespace komv4_plugin
                 // map id’s to this version of kom.
                 var MappedIDAttribute = fileElement.Attribute("MappedID");
                 var MappedID = MappedIDAttribute?.Value ?? "no value";
-                var entry = new Els_kom_Core.Classes.EntryVer(name, size, CompressedSize, Checksum, FileTime, Algorithm, MappedID);
+                var entry = new EntryVer(name, size, CompressedSize, Checksum, FileTime, Algorithm, MappedID);
                 entries.Add(entry);
             }
             return entries;

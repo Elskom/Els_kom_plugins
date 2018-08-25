@@ -9,7 +9,13 @@
 
 namespace komv4_plugin
 {
-    public class Komv4_plugin : Els_kom_Core.Interfaces.IKomPlugin
+    using System;
+    using System.IO;
+    using System.Text;
+    using Els_kom_Core.Classes;
+    using Els_kom_Core.Interfaces;
+
+    public class Komv4_plugin : IKomPlugin
     {
         public string PluginName => "KOM V4 Plugin";
         public string KOMHeaderString => "KOG GC TEAM MASSFILE V.0.4.";
@@ -17,17 +23,17 @@ namespace komv4_plugin
 
         public void Pack(string in_path, string out_path, string KOMFileName)
         {
-            var kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var kOMStream = new KOMStream();
             // convert the crc.xml file to the version for this plugin, if needed.
-            kOMStream.ConvertCRC(4, in_path + System.IO.Path.DirectorySeparatorChar + "crc.xml");
+            kOMStream.ConvertCRC(4, in_path + Path.DirectorySeparatorChar + "crc.xml");
             kOMStream.Dispose();
             // not implemented yet due to lack of packing information on v4 koms.
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Unpack(string in_path, string out_path, string KOMFileName)
         {
-            var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
+            var reader = new BinaryReader(File.OpenRead(in_path), Encoding.ASCII);
             // apperently this should seek into offset 50 when in a hex editor.
             reader.BaseStream.Position += 57;
             // 4 bytes
@@ -38,9 +44,9 @@ namespace komv4_plugin
             var file_time = reader.ReadInt32();
             var xml_size = reader.ReadInt32();
             var xmldatabuffer = reader.ReadBytes(xml_size);
-            var kOMStream = new Els_kom_Core.Classes.KOMStream();
-            kOMStream.DecryptCRCXml(enc_key, ref xmldatabuffer, xml_size, System.Text.Encoding.ASCII);
-            var xmldata = System.Text.Encoding.ASCII.GetString(xmldatabuffer);
+            var kOMStream = new KOMStream();
+            kOMStream.DecryptCRCXml(enc_key, ref xmldatabuffer, xml_size, Encoding.ASCII);
+            var xmldata = Encoding.ASCII.GetString(xmldatabuffer);
             try
             {
                 var entries = kOMStream.Make_entries_v4(xmldata);
@@ -52,7 +58,7 @@ namespace komv4_plugin
             }
             catch (System.Xml.XmlException)
             {
-                throw new Els_kom_Core.Classes.UnpackingError("failure with xml entry data reading...");
+                throw new UnpackingError("failure with xml entry data reading...");
             }
             kOMStream.Dispose();
             reader.Dispose();

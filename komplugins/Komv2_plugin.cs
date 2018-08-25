@@ -9,7 +9,13 @@
 
 namespace komv2_plugin
 {
-    public class Komv2_plugin : Els_kom_Core.Interfaces.IKomPlugin
+    using System.IO;
+    using System.Text;
+    using System.Collections.Generic;
+    using Els_kom_Core.Classes;
+    using Els_kom_Core.Interfaces;
+
+    public class Komv2_plugin : IKomPlugin
     {
         public string PluginName => "KOM V2 Plugin";
         public string KOMHeaderString => "KOG GC TEAM MASSFILE V.0.2.";
@@ -18,62 +24,62 @@ namespace komv2_plugin
         public void Pack(string in_path, string out_path, string KOMFileName)
         {
             var use_XoR = false;
-            if (System.IO.File.Exists(in_path + "\\XoRNeeded.dummy"))
+            if (File.Exists(in_path + "\\XoRNeeded.dummy"))
             {
                 use_XoR = true;
-                System.IO.File.Delete(in_path + "\\XoRNeeded.dummy");
+                File.Delete(in_path + "\\XoRNeeded.dummy");
             }
-            var writer = new System.IO.BinaryWriter(System.IO.File.Create(out_path), System.Text.Encoding.ASCII);
+            var writer = new BinaryWriter(File.Create(out_path), Encoding.ASCII);
             var entry_count = 0;
             var crc_size = 0;
-            var kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var kOMStream = new KOMStream();
             // convert the crc.xml file to the version for this plugin, if needed.
-            kOMStream.ConvertCRC(2, in_path + System.IO.Path.DirectorySeparatorChar + "crc.xml");
+            kOMStream.ConvertCRC(2, in_path + Path.DirectorySeparatorChar + "crc.xml");
             kOMStream.ReadCrc(in_path + "\\crc.xml", out var crc_data, ref entry_count, ref crc_size);
             kOMStream.Dispose();
-            var di = new System.IO.DirectoryInfo(in_path);
+            var di = new DirectoryInfo(in_path);
             var offset = 0;
-            var entries = new System.Collections.Generic.List<Els_kom_Core.Classes.EntryVer>();
+            var entries = new List<EntryVer>();
             foreach (var fi in di.GetFiles())
             {
                 entry_count++;
-                var file_data = System.IO.File.ReadAllBytes(in_path + "\\" + fi.Name);
+                var file_data = File.ReadAllBytes(in_path + "\\" + fi.Name);
                 var originalsize = file_data.Length;
                 if (use_XoR)
                 {
-                    var xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
-                    Els_kom_Core.Classes.BlowFish.XorBlock(ref file_data, xorkey);
+                    var xorkey = Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
+                    BlowFish.XorBlock(ref file_data, xorkey);
                 }
                 byte[] compressedData;
                 try
                 {
-                    Els_kom_Core.Classes.ZlibHelper.CompressData(file_data, out compressedData);
+                    ZlibHelper.CompressData(file_data, out compressedData);
                 }
-                catch (Els_kom_Core.Classes.PackingError ex)
+                catch (PackingError ex)
                 {
-                    throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of entries.", ex);
+                    throw new PackingError("failed with zlib compression of entries.", ex);
                 }
                 var compressedSize = compressedData.Length;
                 offset += compressedSize;
-                entries.Add(new Els_kom_Core.Classes.EntryVer(compressedData, fi.Name, originalsize, compressedSize, offset));
+                entries.Add(new EntryVer(compressedData, fi.Name, originalsize, compressedSize, offset));
             }
             if (use_XoR)
             {
-                var xorkey = System.Text.Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
-                Els_kom_Core.Classes.BlowFish.XorBlock(ref crc_data, xorkey);
+                var xorkey = Encoding.UTF8.GetBytes("\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9\xa9");
+                BlowFish.XorBlock(ref crc_data, xorkey);
             }
             byte[] compressedcrcData;
             try
             {
-                Els_kom_Core.Classes.ZlibHelper.CompressData(crc_data, out compressedcrcData);
+                ZlibHelper.CompressData(crc_data, out compressedcrcData);
             }
-            catch (Els_kom_Core.Classes.PackingError ex)
+            catch (PackingError ex)
             {
-                throw new Els_kom_Core.Classes.PackingError("failed with zlib compression of crc.xml.", ex);
+                throw new PackingError("failed with zlib compression of crc.xml.", ex);
             }
             var compressedcrc = compressedcrcData.Length;
             offset += compressedcrc;
-            entries.Add(new Els_kom_Core.Classes.EntryVer(compressedcrcData, "crc.xml", crc_size, compressedcrc, offset));
+            entries.Add(new EntryVer(compressedcrcData, "crc.xml", crc_size, compressedcrc, offset));
             writer.Write(KOMHeaderString.ToCharArray(), 0, KOMHeaderString.Length);
             writer.BaseStream.Position = 52;
             writer.Write(entry_count);
@@ -96,9 +102,9 @@ namespace komv2_plugin
 
         public void Unpack(string in_path, string out_path, string KOMFileName)
         {
-            var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(in_path), System.Text.Encoding.ASCII);
+            var reader = new BinaryReader(File.OpenRead(in_path), Encoding.ASCII);
             reader.BaseStream.Position = 52;
-            var kOMStream = new Els_kom_Core.Classes.KOMStream();
+            var kOMStream = new KOMStream();
             kOMStream.ReadInFile(reader, out var entry_count);
             // without this dummy read the entry instances would not get the correct
             // data leading to an crash when tring to make an file with the entry name in the output path.
@@ -118,7 +124,7 @@ namespace komv2_plugin
             if (folder)
             {
                 // delete kom folder data.
-                var di = new System.IO.DirectoryInfo(in_path);
+                var di = new DirectoryInfo(in_path);
                 foreach (var fi in di.GetFiles())
                 {
                     fi.Delete();
@@ -128,7 +134,7 @@ namespace komv2_plugin
             else
             {
                 // delete kom file.
-                var fi = new System.IO.FileInfo(in_path);
+                var fi = new FileInfo(in_path);
                 fi.Delete();
             }
         }
