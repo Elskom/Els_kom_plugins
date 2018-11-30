@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Plugins>
-    <Plugin Name="komv2_plugin" Version="1.0.0.9" DownloadUrl="https://github.com/Elskom/komv2_plugin/releases/download/">
+    <Plugin Name="komv2_plugin" Version="1.0.0.11" DownloadUrl="https://github.com/Elskom/komv2_plugin/releases/download/">
         <DownloadFile Name="komv2.plugin.dll" />
         <DownloadFile Name="komv2.plugin.pdb" />
     </Plugin>
-    <Plugin Name="komv3_plugin" Version="1.0.0.9" DownloadUrl="https://github.com/Elskom/komv3_plugin/releases/download/">
+    <Plugin Name="komv3_plugin" Version="1.0.0.10" DownloadUrl="https://github.com/Elskom/komv3_plugin/releases/download/">
         <DownloadFile Name="komv3.plugin.dll" />
         <DownloadFile Name="komv3.plugin.pdb" />
     </Plugin>
-    <Plugin Name="komv4_plugin" Version="1.0.0.9" DownloadUrl="https://github.com/Elskom/komv4_plugin/releases/download/">
+    <Plugin Name="komv4_plugin" Version="1.0.0.14" DownloadUrl="https://github.com/Elskom/komv4_plugin/releases/download/">
         <DownloadFile Name="komv4.plugin.dll" />
         <DownloadFile Name="komv4.plugin.pdb" />
     </Plugin>
-    <Plugin Name="callbacktest_plugin" Version="1.0.0.17" DownloadUrl="https://github.com/Elskom/callbacktest_plugin/releases/download/">
+    <Plugin Name="callbacktest_plugin" Version="1.0.0.18" DownloadUrl="https://github.com/Elskom/callbacktest_plugin/releases/download/">
         <DownloadFile Name="callbacktest.plugin.dll" />
         <DownloadFile Name="callbacktest.plugin.pdb" />
     </Plugin>
